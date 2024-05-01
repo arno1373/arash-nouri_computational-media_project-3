@@ -1,0 +1,303 @@
+<html>
+
+<head>
+    <title>Arash Nouri / Computational Media / Project 3</title>
+    <link rel="stylesheet" href="css/design.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Preloader & welcome message -->
+    <div id="preloader-modal" class="modal2">
+        <div id="preloader" class="modal-content">
+            <span class="close2" ;">&times;</span>
+            <h3>Welcome</h3>
+            <p>The Global Climate Strike of 2019 took place all across the globe from the 20th - 27th of September. It
+                was
+                possibly the largest climate strike in history at the time.</p>
+            <p>Inspired in part by the actions of Greta Thunberg, between 6 - 7.6 million people from 150 countries
+                joined
+                together to let world leaders know that enough is enough, climate action needs to happen now.</p>
+            <p>As you explore this demo, take a look at the numbers broken down by continent. These were ordinary people
+                just like yourself who exercised their right to protest about a cause that affects us all. It's true
+                that
+                collective human action has contributed to so many of the negative trends we see around us, but it can
+                also
+                be a force for good.</p>
+            <p>Once you've finished looking at all the continents, click on <b>Learn More</b> in the bottom right corner
+                of
+                the screen to find more information on how you too can take part in environmental activism.</p>
+        </div>
+    </div>
+
+    <!-- Wordmark and tagline -->
+    <div id="header">
+        <h1>Global Warning</h1>
+        <h2>Stand up for what you stand on</h2>
+    </div>
+
+    <!-- Instructions panel & stats for each continent -->
+    <div id="infoPanel">
+        <div id="panel2">
+            <p><b>Instructions</b>
+                <p>- Select a continent to view it on the globe and see the numbers</p>
+                <p>- Once you're
+                    done, click <b>Learn More</b> to find out how you can get involved</p>
+        </div>
+    </div>
+
+    <!-- Buttons for each continent that rotate the model & trigger a statechange on the instructions panel -->
+    <div id="controls">
+        <button onclick="northAmerica();">North America</button>
+        <button onclick="southAmerica();">South America</button>
+        <button onclick="oceania();">Oceania</button>
+        <button onclick="asia();">Asia</button>
+        <button onclick="europe();">Europe</button>
+        <button onclick="africa();">Africa</button>
+    </div>
+
+    <!-- Learn more button that opens model box with references & resources for the user -->
+    <div id="conclusion">
+        <button id="openButton">Learn More</button>
+    </div>
+
+    <!-- Modal box, code sourced from W3Schools (https://www.w3schools.com/howto/howto_css_modals.asp) -->
+    <div id="learnMore" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>Thank you for taking the time to experience this demo.</p>
+            <p>I hope that this has been an informative experience for you and that it's helped inspire you to find
+                ways to become engaged in environmental activism.</p>
+            <p>If you'd like to learn more, here are some good resources to get you started:</p>
+            <ul>
+                <li><a href="https://350.org/">350.org</a></li>
+                <li><a href="https://globalclimatestrike.net/">Global Climate Strike</a></li>
+                <li><a href="https://fridaysforfuture.org/">Fridays for Future</a></li>
+            </ul>
+            <p>Sources for statistics used in demo:</p>
+            <ul>
+                <li><a
+                        href="https://en.wikipedia.org/wiki/September_2019_climate_strikes">en.wikipedia.org/wiki/September_2019_climate_strikes</a>
+                </li>
+                <li><a
+                        href="https://en.wikipedia.org/wiki/File:20%E2%80%9327_September_Climate_strikes_attendee_numbers.svg">en.wikipedia.org/wiki/File:20%E2%80%9327_September_Climate_strikes_attendee_numbers.svg</a>
+                </li>
+                <li><a
+                        href="https://globalclimatestrike.net/7-million-people-demand-action-after-week-of-climate-strikes/">globalclimatestrike.net/7-million-people-demand-action-after-week-of-climate-strikes</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- End of W3Schools modal code -->
+
+    <script src="js/three.min.js"></script>
+    <script src="js/Detector.js"></script>
+    <script src="js/ColladaLoader.js"></script>
+    <script src="js/tween.min.js"></script>
+
+    <script>
+        var scene, camera, renderer, dae;
+
+        // Text panel in upper right that displays instructions & statistics
+        var textPanel = document.getElementById("panel2");
+
+        function init() {
+            //add detector to see if WebGL is supported
+            if (!Detector.webgl) Detector.addGetWebGLMessage();
+            //set up a scene
+            scene = new THREE.Scene();
+            //add a camera
+            camera = new THREE.PerspectiveCamera(12, window.innerWidth / window.innerHeight, 0.1, 1000);
+            //render the scene - start renderer and set it's size
+            renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x1A237E, 0.5);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            //add to webpage
+            document.body.appendChild(renderer.domElement);
+
+            // var ambientlight = new THREE.AmbientLight(0xffffff, 0);
+            var light = new THREE.DirectionalLight(0xffffff, 0.01);
+            light.position.set(100, 100, 100).normalize();
+            scene.add(light);
+
+            var loader = new THREE.ColladaLoader();
+            loader.options.convertUpAxis = true;
+            loader.load('globe_2.dae', function (collada) {
+
+                dae = collada.scene;
+
+                dae.traverse(function (child) {
+
+                    if (child instanceof THREE.Mesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+
+                });
+
+                dae.scale.x = dae.scale.y = dae.scale.z = 0.6;
+                // dae.position.x = dae.position.y = dae.position.z = 10;
+                dae.updateMatrix();
+                scene.add(dae);
+
+                var light = scene.getObjectByName("Light1", "Light2", "Light3", "Light4", "Light5", "Light6",
+                    true);
+                // light = light.children[0];
+                light.castShadow = true;
+                light.distance = 1000;
+                light.penumbra = 1;
+
+                render();
+
+            });
+
+            //position camera
+            camera.position.set(0, 700, 0);
+
+            //render the scene
+            //render();
+        }
+
+
+        function render() {
+            //call to render scene 60fps
+            requestAnimationFrame(render);
+            camera.lookAt(scene.position);
+
+            // controls.update();
+            TWEEN.update();
+
+            //keep displaying scene
+            renderer.render(scene, camera);
+        }
+
+        // Interaction of buttons, rotates globe and centres it on specific continent + displays additional information by changing content of instructions panel.
+        // Worked on with help from an IXD tutor.
+
+        // Code for North America
+        function northAmerica() {
+            var rot1 = new TWEEN.Tween(dae.rotation).to({
+                x: -1.2,
+                y: -1
+            }, 2000).easing(TWEEN.Easing.Quadratic.InOut);
+            textPanel.innerHTML = "<b>" + "North\nAmerica" + "</b>" + "<br>" + "- Countries: 9" + "<br>" +
+                "- Events: 1,156" +
+                "<br>" + "- People: 2,500,000+";
+
+            rot1.start();
+        }
+
+        // Code for South America
+        function southAmerica() {
+            var rot1 = new TWEEN.Tween(dae.rotation).to({
+                x: -2.2,
+                y: -1.4
+            }, 2000).easing(TWEEN.Easing.Quadratic.InOut);
+            textPanel.innerHTML = "<b>" + "South America" + "</b>" + "<br>" + "- Countries: 10" + "<br>" +
+                "- Events: 172" +
+                "<br>" + "- People: 23,000+";
+
+            rot1.start();
+        }
+
+        // Code for Oceania
+        function oceania() {
+            var rot1 = new TWEEN.Tween(dae.rotation).to({
+                x: -2.5,
+                y: 0.8
+            }, 2000).easing(TWEEN.Easing.Quadratic.InOut);
+            textPanel.innerHTML = "<b>" + "Oceania" + "</b>" + "<br>" + "- Countries: 7" + "<br>" + "- Events: 151" +
+                "<br>" + "- People: 2,010,000+";
+
+            rot1.start();
+        }
+
+        // Code for Europe
+        function europe() {
+            var rot1 = new TWEEN.Tween(dae.rotation).to({
+                x: -1.4,
+                y: 3.2
+            }, 2000).easing(TWEEN.Easing.Quadratic.InOut);
+            textPanel.innerHTML = "<b>" + "Europe" + "</b>" + "<br>" + "- Countries: 37" + "<br>" + "- Events: 1,080" +
+                "<br>" + "- People: 2,700,000+";
+
+            rot1.start();
+        }
+
+        // Code for Asia
+        function asia() {
+            var rot1 = new TWEEN.Tween(dae.rotation).to({
+                x: -1.6,
+                y: 1.5
+            }, 2000).easing(TWEEN.Easing.Quadratic.InOut);
+            textPanel.innerHTML = "<b>" + "Asia" + "</b>" + "<br>" + "- Countries: 22" + "<br>" + "- Events: 159" +
+                "<br>" + "- People: 35,000+";
+
+            rot1.start();
+        }
+
+        // Code for Africa
+        function africa() {
+            var rot1 = new TWEEN.Tween(dae.rotation).to({
+                x: -2.3,
+                y: 3
+            }, 2000).easing(TWEEN.Easing.Quadratic.InOut);
+            textPanel.innerHTML = "<b>" + "Africa" + "</b>" + "<br>" + "- Countries: 13" + "<br>" + "- Events: 35" +
+                "<br>" + "- People: 3,500+";
+
+            rot1.start();
+        }
+
+        // Code for North America
+        function closeButton() {
+            document.getElementById('closeButton').setAttribute("style", "visibility:hidden");
+        }
+
+
+        // Modal box, code sourced from W3Schools (https://www.w3schools.com/howto/howto_css_modals.asp)
+        // Get the modal
+        var modal = document.getElementById("learnMore");
+
+        var modal2 = document.getElementById("preloader-modal");
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("openButton");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // Get the <span> element that closes the modal
+        var span2 = document.getElementsByClassName("close2")[0];
+
+        // When the user clicks the button, open the modal 
+        btn.onclick = function () {
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span2.onclick = function () {
+            preloader.style.display = "none";
+            modal2.style.display = "none";
+        }
+        // End of W3Schools modal code
+
+        //call the init function to run the code
+        init();
+    </script>
+</body>
+
+</html>
